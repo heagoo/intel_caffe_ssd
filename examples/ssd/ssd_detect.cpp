@@ -26,6 +26,8 @@
 #include <utility>
 #include <vector>
 
+#include <sys/time.h>
+
 #ifdef USE_OPENCV
 using namespace caffe;  // NOLINT(build/namespaces)
 
@@ -289,11 +291,12 @@ int main(int argc, char** argv) {
     if (file_type == "image") {
       cv::Mat img = cv::imread(file, -1);
       CHECK(!img.empty()) << "Unable to decode image " << file;
-struct timeval start, end;
-gettimeofday(&start, NULL);
+
+      struct timeval start, end;
+      gettimeofday(&start, NULL);
       std::vector<vector<float> > detections = detector.Detect(img);
-gettimeofday(&end, NULL);
-printf("%lu ms\n", (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000);
+      gettimeofday(&end, NULL);
+      printf("%lu ms\n", (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000);
 
       /* Print the detection results. */
       for (int i = 0; i < detections.size(); ++i) {
