@@ -64,11 +64,15 @@ echo $VERSION_LINE  # Return Version Line
 # MKL
 DST=`dirname $0`
 OMP=0 
-VERSION_MATCH=20160706
-ARCHIVE_BASENAME=mklml_lnx_2017.0.0.20160801.tgz
+#VERSION_MATCH=20160706
+#ARCHIVE_BASENAME=mklml_lnx_2017.0.0.20160801.tgz
+VERSION_MATCH=20161005
+ARCHIVE_BASENAME=mklml_lnx_2017.0.1.20161005.tgz
+ARCHIVE_FOLDERNAME=mklml_lnx_2017.0.1.20161005
 MKL_CONTENT_DIR=`echo $ARCHIVE_BASENAME | rev | cut -d "." -f 2- | rev`
 GITHUB_RELEASE_TAG=self_containted_MKLGOLD
-MKLURL="https://github.com/intel/caffe/releases/download/$GITHUB_RELEASE_TAG/$ARCHIVE_BASENAME"
+#MKLURL="https://github.com/intel/caffe/releases/download/$GITHUB_RELEASE_TAG/$ARCHIVE_BASENAME"
+MKLURL="https://github.com/intel-mxnet/mkl-release/releases/download/$GITHUB_RELEASE_TAG/$ARCHIVE_BASENAME"
 # there are diffrent MKL lib to be used for GCC and for ICC
 reg='^[0-9]+$'
 VERSION_LINE=`GetVersionName $MKLROOT`
@@ -80,6 +84,15 @@ if [ -z $MKLROOT ] || [ $VERSION_LINE -lt $VERSION_MATCH ]; then
       #...If it is not then downloaded and unpacked
       wget --no-check-certificate -P $DST $MKLURL -O $DST/$ARCHIVE_BASENAME
       tar -xzf $DST/$ARCHIVE_BASENAME -C $DST
+      # Patch the header
+      echo "#ifndef _MKL_VERSION_H_" > $DST/$ARCHIVE_FOLDERNAME/include/mkl_version.h
+      echo "#define _MKL_VERSION_H_" >> $DST/$ARCHIVE_FOLDERNAME/include/mkl_version.h
+      echo "#define __INTEL_MKL_BUILD_DATE 20161005" >> $DST/$ARCHIVE_FOLDERNAME/include/mkl_version.h
+      echo "#define __INTEL_MKL__          2017" >> $DST/$ARCHIVE_FOLDERNAME/include/mkl_version.h
+      echo "#define __INTEL_MKL_MINOR__    0" >> $DST/$ARCHIVE_FOLDERNAME/include/mkl_version.h
+      echo "#define __INTEL_MKL_UPDATE__   1" >> $DST/$ARCHIVE_FOLDERNAME/include/mkl_version.h
+      echo "#define INTEL_MKL_VERSION 20170001" >> $DST/$ARCHIVE_FOLDERNAME/include/mkl_version.h
+      echo "#endif" >> $DST/$ARCHIVE_FOLDERNAME/include/mkl_version.h
     fi
   FindLibrary $1
   MKLROOT=$PWD/`echo $LOCALMKL | sed -e 's/lib.*$//'`
